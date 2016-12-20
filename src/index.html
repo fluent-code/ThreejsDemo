@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="js/three.js"></script>
+    <script src="js/OrbitControls.js"></script>
+    <script src="js/DDSLoader.js"></script>
+    <script src="js/MTLLoader.js"></script>
+    <script src="js/OBJLoader.js"></script>
+</head>
+<body>
+    <script>
+
+        //创建场景
+        var scene=new THREE.Scene();
+        //创建盒子
+        var geometry=new THREE.BoxGeometry(200,50,200);
+        //创建材质
+        var material=new THREE.MeshLambertMaterial({color:0xff000});
+        //给盒子添加材质
+        var mesh=new THREE.Mesh(geometry,material);
+        //设置盒子位置
+        mesh.position.y=-120;
+        mesh.position.x=-50;
+        //把盒子添加到场景
+        scene.add(mesh);
+
+        THREE.Loader.Handlers.add( /\.dds$/i, new THREE.DDSLoader() );
+        //创建材质对象
+        var mtlLoader1 = new THREE.MTLLoader();
+        //设置材质路径
+        mtlLoader1.setPath( 'female02/' );
+        //加载材质
+        mtlLoader1.load( 'female02.mtl', function( materials ) {
+            materials.preload();
+            //创建obj模型对象
+            var objLoader = new THREE.OBJLoader();
+            objLoader.setMaterials( materials );
+            //设置obj模型路径
+            objLoader.setPath( 'female02/' );
+            //加载obj对象
+            objLoader.load( 'female02.obj', function ( object ) {
+                object.position.x=-70;
+                object.position.y=-95;
+                scene.add( object );
+            } );
+        });
+        var mtlLoader = new THREE.MTLLoader();
+        mtlLoader.setPath( 'male02/' );
+        mtlLoader.load( 'male02_dds.mtl', function( materials ) {
+            materials.preload();
+            var objLoader = new THREE.OBJLoader();
+            objLoader.setMaterials( materials );
+            objLoader.setPath( 'male02/' );
+            objLoader.load( 'male02.obj', function ( object ) {
+
+                object.position.y = -95;
+                scene.add( object );
+            } );
+        });
+        //设置场景路径 背景图 6张
+        scene.background = new THREE.CubeTextureLoader()
+                .setPath( 'pisa/' )
+                .load( [ 'px.png', 'nx.png', 'py.png', 'ny.png', 'pz.png', 'nz.png' ] );
+        //创建灯光
+        var light=new THREE.PointLight(0xffffff);
+        //设置灯光
+        light.position.set(300,400,200);
+        //添加灯光
+        scene.add(light);
+        //创建环境光
+        var ambientlight=new THREE.AmbientLight(0x3333333);
+        //添加环境光
+        scene.add(ambientlight);
+        //创建相机
+        var camera=new THREE.PerspectiveCamera(50,800/600,1,3000);
+        //设置相机
+        camera.position.set(200,200,200);
+        //相机位置
+        camera.lookAt(scene.position);
+        //创建渲染
+        var renderer=new THREE.WebGLRenderer();
+        //设置渲染大小
+        renderer.setSize( 1200, 800 );
+        //添加到body里面
+        document.body.appendChild(renderer.domElement);
+        //渲染
+        function render() {
+            renderer.render(scene,camera);
+        }
+        render();
+        //创建相机控制器
+        var controls=new THREE.OrbitControls(camera);
+        controls.addEventListener('change',render)
+        //每帧执行一次
+        function animate() {
+            requestAnimationFrame(animate);
+            render();
+        }
+        animate();
+
+    </script>
+</body>
+</html>
